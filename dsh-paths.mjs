@@ -5,8 +5,9 @@
  * （`install.mjs` / `vault-register.mjs` / `vault-register-any.mjs` / `register.mjs`）
  * 一律从这里取路径，**任何脚本里都不允许再出现字面量盘符或用户名**。
  *
- * 这个文件不随插件实装发布（`package.json` 的 `files` 只含 `lib` 与 `cordis.patch.yml`），
- * 它只服务工作区里的部署脚本。
+ * 这个文件**随包发布**（`package.json` 的 `files` 里列了它），因为 `install.mjs` 依赖它：
+ * 用户从市场或 npm 装完插件后要跑 `install.mjs`，那个脚本必须能解析出这台机器的 DSH 主目录。
+ * 只有作者本机的开发脚本（`vault-*.mjs` / `register.mjs` / `strip-backticks.mjs`）不随包发布。
  *
  * @module dsh-paths
  */

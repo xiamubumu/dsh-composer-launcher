@@ -335,6 +335,21 @@ It stages the extension to a stable path, lists the browsers it found on this ma
 
 The upper bound is deliberate. The plugin hooks client slots and host routes whose contracts are still moving inside the 1.5 line, so it declares the line it has actually been tested against and nothing beyond it. A later release will widen it.
 
+### Web builds have no native folder dialog — so this plugin supplies one
+
+DSH's own directory flow (`@deepseek-ai/dsh-client-ui-directory-picker-native`) reads exactly one browser global, `window.dshDesktopDirectoryPicker.pick()`. Only the **desktop shell** injects it; on a web build the global is absent, the flow rejects with
+
+```
+DSH Desktop directory picker bridge is unavailable
+```
+
+and DSH's workspace UI shows 「无法打开文件夹」. Both your own folder button and DSH's own picker reach that same global, so the launcher installs a stand-in **only when the real bridge is missing**:
+
+- a real desktop shell ⇒ the stand-in is never installed at all, and `pick()` re-checks on every call, so a bridge arriving late still wins;
+- a web build ⇒ the stand-in asks you to **type** the folder's absolute path (browsers deliberately hide absolute paths — `showDirectoryPicker()` returns a handle whose only useful field is the last name segment — so typing is the one way left to hand the server a real directory). Relative paths are rejected; `D:\…`, `\\server\share` and `/…` are accepted.
+
+If you would rather not have that at all, uninstall this plugin: the stand-in exists nowhere else.
+
 ---
 
 ## FAQ
