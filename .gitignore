@@ -1,0 +1,27 @@
+# installed/dependency trees
+node_modules/
+*.tsbuildinfo
+
+# local logs & scratch output
+*.log
+_final-harness.txt
+
+# one-off probe / reverse-verification dirs produced by the verification rounds
+_t*/
+_rev*/
+_probe*/
+_verify_rev*/
+*.orig
+*.bak
+*.bak-*
+
+# extension build artifacts: .pem is the signing PRIVATE KEY, .crx is the built package.
+# Neither belongs in git (the extension ID derives from that key).
+extension.crx
+extension.pem
+
+# editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

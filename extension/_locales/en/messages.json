@@ -1,0 +1,32 @@
+{
+  "extDesc": {
+    "message": "Push this browser's tabs to the DeepSeek Harness \"+\" launcher: a fixed bridge port (43130) that does not drift with the Web GUI port, replacing the unreliable CDP debug port."
+  },
+  "statusReading": {
+    "message": "Reading…"
+  },
+  "statusNever": {
+    "message": "No push yet."
+  },
+  "statusTabs": {
+    "message": "{count} tabs"
+  },
+  "labelPort": {
+    "message": "Bridge port"
+  },
+  "btnSave": {
+    "message": "Save and push now"
+  },
+  "errPort": {
+    "message": "Invalid port."
+  },
+  "hintLastPush": {
+    "message": "Last push: {time}"
+  },
+  "statusConnected": {
+    "message": "Connected · port {port}"
+  },
+  "statusUnreachable": {
+    "message": "Cannot reach {endpoint} ({error})"
+  }
+}

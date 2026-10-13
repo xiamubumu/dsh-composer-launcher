@@ -1,0 +1,10 @@
+# dsh-composer-launcher bundle patch: mounts this plugin into the composition.
+#
+# Both halves resolve through the official bundle flow: the host entry comes
+# from `main`, the client entry (__ModuleLoader__ UI) from `dsh.client` in
+# package.json — so no manual dual-entry wiring is needed here.
+#
+# Install: dsh plugin --profile web add <this package, path or git URL>
+- insert:
+    - id: composer-launcher
+      name: 'dsh-composer-launcher'

@@ -1,0 +1,100 @@
+{
+  "name": "dsh-composer-launcher",
+  "version": "1.0.0",
+  "description": "Codex-style composer launcher: turns the composer's + button into a menu (add / capability / common plugins) whose picks land as native reference chips on a rail above the input. Ships a companion browser extension that pushes your open tabs in as reference sources, plus a staging script that detects whichever browsers are actually installed and walks you through loading it.",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "extension",
+    "install.mjs",
+    "install.ps1",
+    "install-extension.ps1",
+    "dsh-paths.mjs",
+    "bridge-selfcheck.mjs",
+    "README.md",
+    "README.zh-CN.md"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.1.5-rc.2 <0.2.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-commands",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-input-trigger",
+        "@deepseek-ai/dsh-client-ui-primitives",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-settings-plugin-inventory",
+        "@deepseek-ai/dsh-client-ui-settings-plugins",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-api-remotes": "*",
+    "@deepseek-ai/dsh-client-locale": "*",
+    "@deepseek-ai/dsh-client-ui-commands": "*",
+    "@deepseek-ai/dsh-client-ui-conversation": "*",
+    "@deepseek-ai/dsh-client-ui-input-trigger": "*",
+    "@deepseek-ai/dsh-client-ui-primitives": "*",
+    "@deepseek-ai/dsh-client-ui-settings": "*",
+    "@deepseek-ai/dsh-client-ui-settings-plugin-inventory": "*",
+    "@deepseek-ai/dsh-client-ui-settings-plugins": "*",
+    "@deepseek-ai/dsh-client-ui-slots": "*",
+    "@deepseek-ai/dsh-commands": "*",
+    "@deepseek-ai/dsh-host-plugin-inventory": "*",
+    "@deepseek-ai/dsh-host-webserver": "*",
+    "@deepseek-ai/dsh-settings": "*",
+    "react": "^18.2.0"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "composer",
+    "launcher",
+    "codex",
+    "cordis",
+    "ui",
+    "client-plugin",
+    "reference-chip"
+  ],
+  "author": {
+    "name": "夏目",
+    "url": "https://github.com/xiamubumu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiamubumu/dsh-composer-launcher.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xiamubumu/dsh-composer-launcher/issues"
+  },
+  "homepage": "https://github.com/xiamubumu/dsh-composer-launcher#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}
