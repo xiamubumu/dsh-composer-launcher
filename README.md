@@ -89,11 +89,11 @@ Registered on the `settings.plugin.item` slot as a card titled **Launcher** — 
 
 ### 4. Debug browser (fallback)
 
-If you cannot install the extension, the Tabs row can still read tabs from a Chromium process started with a remote-debugging port. That is what **Launch debug browser** does: it starts one with its own throwaway profile. It is a fallback, not the recommended path — it can only ever see the tabs of that one instance, and it is deliberately not offered as the primary entry point.
+The Tabs row can also read tabs over a remote-debugging port from a Chromium process it starts itself. That is what **Launch debug browser** does — and when the extension is staged, the same call attaches it with `--load-extension` and then verifies through the debugging port that it really mounted, so this route needs no manual step at all (see [The browser extension](#the-browser-extension)). It stays a fallback rather than the primary path because it only ever sees that one throwaway-profile instance, never the browser you already have open.
 
 ### 5. Loopback bridge
 
-The host half owns a small HTTP bridge on `127.0.0.1:43130` so the extension can push tabs into it. It binds loopback only, yields politely if an older instance already holds the port, and is used for nothing else.
+The host half owns a small HTTP bridge on `127.0.0.1:43130` (override: `DSH_LAUNCHER_BRIDGE_PORT`) so the extension can push tabs into it. It binds loopback only, yields politely if an older instance already holds the port, and is used for nothing else.
 
 ---
 
@@ -120,6 +120,26 @@ The host half owns a small HTTP bridge on `127.0.0.1:43130` so the extension can
 ## The browser extension
 
 The plugin works without it — the Tabs row simply says the extension is not installed and points at the button. With it, the row lists the tabs of your **everyday browser**.
+
+### Three ways to get it loaded
+
+Chromium will not let anything silently sideload an extension into the browser you use every day. That is a browser security rule with no plugin-side workaround, so the goal is a different one: make every *remaining* step either automatic or one click.
+
+| Route | What happens | Manual steps |
+|---|---|---|
+| **A — a browser this plugin starts** | The plugin spawns a separate Chromium process with `--load-extension` pointing at the staged copy, then **verifies through the debugging port that the extension really mounted** | none |
+| **B — your everyday browser** | The Tabs row offers *Open the extensions page* and *Copy the extension path*, so loading it once is a paste and a "Load unpacked" | one time, ~20 seconds |
+| **C — managed machines** | Chromium enterprise policy (`ExtensionSettings` / `ExtensionInstallForcelist`) pointing at a self-hosted, signed CRX plus an HTTPS update manifest | admin rights; **not shipped here** |
+
+**Route A is verified, not assumed.** After launching, the plugin asks the debugging port for its raw target list and looks for *this* extension's own worker (`chrome-extension://<id>/background.js`) rather than "some extension" — every Chromium ships several of its own. Chromium reports no error when `--load-extension` is ignored, so a launch on its own proves nothing.
+
+If our worker is missing, the plugin retries once on a clean profile `~/.dsh-edge-agent-ext` and says so in the `healed` and `note` fields of its answer. That is not defensive padding: a profile that was ever opened *without* the command-line switches can stop honouring them, and the plugin's default profile `~/.dsh-edge-agent` does exactly that on some machines. If both attempts fail, `extensionLoaded` comes back `false` and the Tabs row falls back to reading tabs over the debugging port — the plugin never claims a step it did not actually complete.
+
+Firefox cannot be started this way: the launcher passes Chromium-only switches, which is why it is the one browser the plugin's table marks as manual-only.
+
+Route B is what those two buttons and `install-extension.ps1` are for (see *Which browsers* below) — nothing in either contains a drive letter or a user name.
+
+Route C is a real answer for fleets, and out of scope here: it needs administrator rights, a CRX you signed yourself, and an HTTPS endpoint serving the update manifest. This repository ships none of that, and no README should pretend otherwise.
 
 ### How it works
 
@@ -155,13 +175,13 @@ The extension is Manifest V3 and talks to `globalThis.browser ?? globalThis.chro
 | QQ 浏览器 | `chrome://extensions` | Load unpacked |
 | Firefox | `about:debugging#/runtime/this-firefox` | Load Temporary Add-on |
 
-Chromium browsers do not allow silent sideloading — that is a browser security rule, not something a plugin can work around. So the plugin's job is to **point precisely**: `install-extension.ps1` enumerates the browsers actually installed on this machine (on Windows from the `StartMenuInternet` registry keys, on macOS and Linux from the platforms' own locations), prints them, and opens the right extensions page for the one you choose. `-Browser <id>` picks one non-interactively. Nothing in that script contains a drive letter or a user name.
+Chromium browsers do not allow silent sideloading — that is a browser security rule, not something a plugin can work around (routes A and C above are the two exceptions, and C needs an administrator). So for your everyday browser the plugin's job is to **point precisely**: the Tabs row has an *Open the extensions page* button (route `POST /composer-launcher/open-extensions-page`, which picks the first Chromium installed here) and a *Copy the extension path* button, and `install-extension.ps1` does the same from a terminal — it enumerates the browsers actually installed on this machine (on Windows from the `StartMenuInternet` registry keys, on macOS and Linux from the platforms' own locations), prints them, and opens the right extensions page for the one you choose. `-Browser <id>` picks one non-interactively. Nothing in that script contains a drive letter or a user name.
 
 Firefox is offered but flagged differently in the plugin's own browser table: it is not offered to the debug-browser launcher, because that launcher passes Chromium-only flags.
 
 ### Port
 
-Default `43130`. The host half's port is a constant; the extension's port is editable in its popup. If you change one, change the other — a mismatch only means the Tabs row reports the extension as offline and falls back to the debug port.
+Default `43130`, or whatever `DSH_LAUNCHER_BRIDGE_PORT` holds when it parses as an integer between 1024 and 65535. That override exists so two DSH instances on one machine can each keep their own bridge instead of one stealing the port from the other (this repository's own end-to-end tests use it for exactly that reason). The extension's port is editable in its popup: if you change one, change the other — a mismatch only means the Tabs row reports the extension as offline and falls back to the debug port.
 
 `43129` is recognised as the legacy port and migrated automatically on first read.
 
@@ -200,7 +220,8 @@ Everything is served under `/composer-launcher` on the host's existing web serve
 | `GET` | `/tabs?port=` | Merged tab list (extension first, CDP second). Returns `{ source, stale, port, sources: { extension, cdp, mixed }, extensionHint, tabs, error }` |
 | `GET` | `/stage-extension` | Copy the bundled extension to a stable path and return `{ extensionDir, dir, browsers, note }` — `browsers` is the list of browsers actually installed here |
 | `GET` | `/linked-plugins` | Probe partner plugins. Returns `{ linked: [{ id, label, ok, detail }] }` |
-| `POST` | `/open-debug-browser` | Start a Chromium instance with a debugging port |
+| `POST` | `/open-debug-browser` | Start a Chromium instance with a debugging port **and the staged extension attached**; the answer carries `extensionLoaded` (verified over the debugging port, not assumed), plus `healed`/`note` when a clean profile was needed |
+| `POST` | `/open-extensions-page` | Open the extensions page of the first Chromium installed on this machine, for the one-time manual load. Returns `{ ok, browser, url }` |
 | `GET` | `/bundles` | The profile's mounted-plugin manifest |
 | `GET`\|`HEAD` | `/favicon?u=<encoded>` | Same-origin favicon proxy: it sniffs the bytes, caches for 6 hours, and serves with `default-src 'none'; sandbox` |
 | `GET`\|`HEAD` | `/bridge` | Bridge identity: `{ bridge: true, pid, port, holding, startedAt }` |
@@ -269,7 +290,8 @@ If that service is absent, the MCP row is simply unavailable, and clicking it re
 
 - **The enable/disable switch is not wired.** Plugin rows show state and link to settings; they do not toggle a plugin on or off.
 - **Real tabs need the extension** (or the debug browser). There is no third path — a plugin cannot reach into a browser it is not running inside.
-- **The bridge port is not configurable on the host side.** It is a constant, `43130`. The extension's side is editable.
+- **The bridge port is `43130` unless `DSH_LAUNCHER_BRIDGE_PORT` overrides it.** The extension's side is editable in its popup.
+- **Chromium will not let this plugin install the extension into the browser you already use.** It can start its own browser with the extension attached, and it can point precisely at the manual steps; installing silently into an existing browser requires an enterprise policy and administrator rights, which this repository does not ship.
 - **Firefox's MV3 support means a temporary load** in most builds; that is a browser constraint, not a plugin one.
 - **The favicon proxy accepts arbitrary URLs.** It is sandboxed, byte-sniffed and size-limited, but it is still the one route worth understanding before you expose a machine.
 
@@ -313,11 +335,15 @@ The plugin's host half and its patch file are read at boot only. Restart DSH onc
 
 ### The extension (optional)
 
+Nothing to do for the zero-touch route: open the composer and press **Launch debug browser** (or *Open a browser with the extension loaded*) in the Tabs row. That starts a Chromium with the staged extension attached and verified — no manual load, no everyday browser involved.
+
+For the browser you actually use, load it once:
+
 ```powershell
 pwsh -ExecutionPolicy Bypass -File .\install-extension.ps1
 ```
 
-It stages the extension to a stable path, lists the browsers it found on this machine, and opens the right extensions page. Add `-Browser edge` (or `chrome`, `brave`, `vivaldi`, `opera`, `arc`, `360`, `qq`, `firefox`) to skip the question.
+It stages the extension to a stable path, lists the browsers it found on this machine, and opens the right extensions page. Add `-Browser edge` (or `chrome`, `brave`, `vivaldi`, `opera`, `arc`, `360`, `qq`, `firefox`) to skip the question. The Tabs row's *Open the extensions page* and *Copy the extension path* buttons do the first half of that without a terminal; the full walkthrough, including what Chromium does and does not allow, is in [The browser extension](#the-browser-extension).
 
 ---
 
@@ -358,6 +384,13 @@ If you would rather not have that at all, uninstall this plugin: the stand-in ex
 <summary>Do I need the browser extension?</summary>
 
 No. The plugin's menu, chips, skills, commands, MCP and plugin rows all work without it. The extension only fills in the **Tabs** row with your real browser's open pages. Without it, that row can still read a debug instance you launch yourself.
+
+</details>
+
+<details>
+<summary>Can the plugin install the extension by itself?</summary>
+
+Into a browser it starts itself, yes — and that route is verified rather than assumed. Into the browser you already have open, no: Chromium forbids silent sideloading, and that is a security rule rather than a missing feature. What the plugin does instead is make the manual half small — *Open the extensions page* and *Copy the extension path* in the Tabs row, or `install-extension.ps1` in a terminal. A fleet can do it centrally with an `ExtensionSettings` / `ExtensionInstallForcelist` policy and its own signed CRX, which needs an administrator and is not shipped here.
 
 </details>
 
