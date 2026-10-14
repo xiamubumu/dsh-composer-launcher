@@ -297,6 +297,17 @@ If that service is absent, the MCP row is simply unavailable, and clicking it re
 
 ---
 
+## 📚 Tutorials
+
+| Document | What it covers |
+|---|---|
+| [Browser extension tutorial (English)](tutorial-browser-extension.md) | How to get the extension loaded: the zero-manual route A, the everyday-browser route B, the enterprise route C; how to verify it, what to do when it fails, and a prompt for your own agent |
+| [浏览器扩展教程（中文）](tutorial-browser-extension.zh-CN.md) | the same, in Chinese |
+| [Install & official patches (English)](tutorial-install-and-official-patches.md) | How to install all four plugins and what to do about the official patches |
+| [安装与官方补丁（中文）](tutorial-install-and-official-patches.zh-CN.md) | the same, in Chinese |
+
+---
+
 ## Installation
 
 ### From GitHub (recommended; measured on a fresh `DSH_HOME`)

@@ -297,6 +297,17 @@ Firefox 也在支持列表里，但在插件自己的浏览器表里被单独标
 
 ---
 
+## 📚 教程
+
+| 文档 | 讲什么 |
+|---|---|
+| [浏览器扩展教程（中文）](tutorial-browser-extension.zh-CN.md) | 扩展怎么装：零人工路线 A、日常浏览器路线 B、企业策略路线 C，怎么验证、装不上怎么办，含给你 agent 的提示词 |
+| [Browser extension tutorial (English)](tutorial-browser-extension.md) | the same, in English |
+| [安装与官方补丁（中文）](tutorial-install-and-official-patches.zh-CN.md) | 四个插件怎么一起装，官方补丁要不要打 |
+| [Install & official patches (English)](tutorial-install-and-official-patches.md) | the same, in English |
+
+---
+
 ## 安装
 
 ### 从 GitHub（推荐，已在全新 `DSH_HOME` 上实测）

@@ -25,7 +25,11 @@
     "dsh-paths.mjs",
     "bridge-selfcheck.mjs",
     "README.md",
-    "README.zh-CN.md"
+    "README.zh-CN.md",
+    "tutorial-browser-extension.md",
+    "tutorial-browser-extension.zh-CN.md",
+    "tutorial-install-and-official-patches.md",
+    "tutorial-install-and-official-patches.zh-CN.md"
   ],
   "engines": {
     "node": "^22.19.0 || >=24.0.0",
