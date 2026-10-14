@@ -141,13 +141,6 @@ Route B is what those two buttons and `install-extension.ps1` are for (see *Whic
 
 Route C is a real answer for fleets, and out of scope here: it needs administrator rights, a CRX you signed yourself, and an HTTPS endpoint serving the update manifest. This repository ships none of that, and no README should pretend otherwise.
 
-### Both remaining steps, in one place
-
-A fresh install leaves two decisions — the official file patches and this extension — and a user who never opens a panel would never learn about either. Two things fix that, and neither needs a plugin-side hack:
-
-1. **`dsh-context-reclaim` announces them in the conversation.** On the first few requests after installation that plugin appends a short notice to the system prompt, asking your agent to relay, in your own language, the patch verdict and the extension step, with a patch-library link, a direct download link and the tutorial path. See its README for `DSH_RECLAIM_ANNOUNCE*`.
-2. **This plugin shows a permanent 官方补丁 row** at the top of the browser group — *not* behind the “extension is not installed” condition, because patches and the extension must not be able to hide each other. It carries the same two links plus a copy button, and it reads the verdict from `/patch-report` when `dsh-context-reclaim` is installed. Buttons go through `/open-link`, so the patch library opens in your own browser on both desktop and web.
-
 ### How it works
 
 It does not poll. The extension **pushes**:
@@ -229,8 +222,6 @@ Everything is served under `/composer-launcher` on the host's existing web serve
 | `GET` | `/linked-plugins` | Probe partner plugins. Returns `{ linked: [{ id, label, ok, detail }] }` |
 | `POST` | `/open-debug-browser` | Start a Chromium instance with a debugging port **and the staged extension attached**; the answer carries `extensionLoaded` (verified over the debugging port, not assumed), plus `healed`/`note` when a clean profile was needed |
 | `POST` | `/open-extensions-page` | Open the extensions page of the first Chromium installed on this machine, for the one-time manual load. Returns `{ ok, browser, url }` |
-| `POST` | `/open-link` | Open an **allow-listed** external link in the user's own browser. The body is `{ url }`; anything that does not start with `https://github.com/xiamubumu/` is refused with `{ ok: false, error }`. This route exists so the patch-library buttons work in the desktop shell too — it is deliberately **not** a general URL opener |
-| `GET` | `/patch-report` | The official-patch verdict, read from `<DSH_HOME>/context-reclaim/patch-report.json` (written by `dsh-context-reclaim`). Returns `{ ok, report }`, where `report` is `null` when that plugin is not installed or has not reached a verdict. **Read-only: this plugin never writes another plugin's files** |
 | `GET` | `/bundles` | The profile's mounted-plugin manifest |
 | `GET`\|`HEAD` | `/favicon?u=<encoded>` | Same-origin favicon proxy: it sniffs the bytes, caches for 6 hours, and serves with `default-src 'none'; sandbox` |
 | `GET`\|`HEAD` | `/bridge` | Bridge identity: `{ bridge: true, pid, port, holding, startedAt }` |
@@ -329,10 +320,10 @@ One command. That is the whole procedure — no script, no path to edit.
 
 ### From a local tarball (air-gapped machines)
 
-Download `dsh-composer-launcher-1.0.1.tgz` from [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases), then:
+Download `dsh-composer-launcher-1.0.0.tgz` from [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases), then:
 
 ```bash
-dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.1.tgz
+dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.0.tgz
 ```
 
 ### From the plugin marketplace / npm (not yet possible)
