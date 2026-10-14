@@ -299,15 +299,31 @@ If that service is absent, the MCP row is simply unavailable, and clicking it re
 
 ## Installation
 
-### From the plugin marketplace
-
-Search for **dsh-composer-launcher** and install it. That is the whole procedure — no script, no path to edit.
-
-### From GitHub
+### From GitHub (recommended; measured on a fresh `DSH_HOME`)
 
 ```bash
 dsh plugin --profile web add github:xiamubumu/dsh-composer-launcher
 ```
+
+One command. That is the whole procedure — no script, no path to edit.
+
+### From a local tarball (air-gapped machines)
+
+Download `dsh-composer-launcher-1.0.0.tgz` from [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases), then:
+
+```bash
+dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.0.tgz
+```
+
+### From the plugin marketplace / npm (not yet possible)
+
+The marketplace submission (an `awesome-dsh-plugin` PR) has not been filed and nothing is published on npm yet ⇒ **neither route works today**.
+Once listed/published, searching for **dsh-composer-launcher** in the marketplace and installing is all there is to it.
+
+> ⚠️ **Known issue: do not feed the release asset's tarball URL to `dsh plugin add`.**
+> `dsh plugin --profile web add https://github.com/.../releases/download/v1.0.0/....tgz` fails on the pnpm DSH bundles (10.34.5) with
+> `ERR_PNPM_MISSING_TARBALL_INTEGRITY` ([pnpm#14351](https://github.com/pnpm/pnpm/issues/14351), fixed upstream only in pnpm ≥ 12.5.1).
+> Installing a second plugin that way **always** fails — use the `github:` shorthand or a local tarball path instead.
 
 ### From a local checkout
 

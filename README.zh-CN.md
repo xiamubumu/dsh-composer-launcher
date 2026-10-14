@@ -299,15 +299,31 @@ Firefox 也在支持列表里，但在插件自己的浏览器表里被单独标
 
 ## 安装
 
-### 从插件市场
-
-搜 **dsh-composer-launcher** 装上即可。这就是全部步骤 —— 没有脚本，没有要改的路径。
-
-### 从 GitHub
+### 从 GitHub（推荐，已在全新 `DSH_HOME` 上实测）
 
 ```bash
 dsh plugin --profile web add github:xiamubumu/dsh-composer-launcher
 ```
+
+一条命令装好。这就是全部步骤 —— 没有脚本，没有要改的路径。
+
+### 从本地 tarball（离线机器）
+
+去 [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases) 下载 `dsh-composer-launcher-1.0.0.tgz`，然后：
+
+```bash
+dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.0.tgz
+```
+
+### 从插件市场 / npm（暂时还不行）
+
+市场投稿（`awesome-dsh-plugin` 的 PR）还没提交，npm 上也还没发布 ⇒ **现在这两种方式都装不到**。
+收录 / 发布之后，市场里搜 **dsh-composer-launcher** 装上即可。
+
+> ⚠️ **已知问题：不要拿 Release 资产的 tarball URL 直接装。**
+> `dsh plugin --profile web add https://github.com/.../releases/download/v1.0.0/....tgz` 在 DSH 自带的 pnpm 10.34.5 上会失败：
+> `ERR_PNPM_MISSING_TARBALL_INTEGRITY`（[pnpm#14351](https://github.com/pnpm/pnpm/issues/14351)，上游在 pnpm ≥ 12.5.1 才修好）。
+> 连装第二个插件时**必然**失败 —— 请用上面的 `github:` 简写或本地 tarball 路径。
 
 ### 从本地目录
 
