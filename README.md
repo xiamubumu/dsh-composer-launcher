@@ -1,5 +1,7 @@
 # dsh-composer-launcher
 
+**One "+" panel for compositions, plugins and MCP.**
+
 > ⚠️ **DSH 1.5 only** (`>=0.1.5-rc.2 <0.2.0`). Newer DSH releases will be supported in follow-up updates.
 
 **English** · [简体中文](README.zh-CN.md)
@@ -320,6 +322,16 @@ The browser extension belongs to this plugin (the "+" launcher), so this dialog 
 | [安装与官方补丁（中文）](tutorial-install-and-official-patches.zh-CN.md) | the same, in Chinese 补丁本体已开源成补丁库：<https://github.com/xiamubumu/dsh-patch-library>  |
 
 ---
+
+## 🔗 The rest of the family
+
+Each plugin installs on its own; together they save the most. The other three:
+
+- [`dsh-context-reclaim`](https://github.com/xiamubumu/dsh-context-reclaim) — Context reclamation: bounded tool results, a folded tool surface and a stable prefix
+- [`dsh-aux-degrade`](https://github.com/xiamubumu/dsh-aux-degrade) — Auxiliary-call degradation: summaries and titles stop burning their budget on reasoning
+- [`dsh-capability-composer`](https://github.com/xiamubumu/dsh-capability-composer) — Capability composer: switchable tool/skill/MCP sets instead of one bloated surface
+
+> All of them are **DSH 1.5 only**; newer DSH releases will be supported in follow-up updates. Plugins that need official patches announce them in the UI once you install them — nothing goes unseen.
 
 ## Installation
 

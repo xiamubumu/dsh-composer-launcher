@@ -1,5 +1,7 @@
 # dsh-composer-launcher
 
+**一个「+」面板统管组合、插件和 MCP。**
+
 > ⚠️ **只支持 DSH 1.5**（`>=0.1.5-rc.2 <0.2.0`）。DSH 出新版本会跟进更新。
 
 [English](README.md) · **简体中文**
@@ -320,6 +322,16 @@ Firefox 也在支持列表里，但在插件自己的浏览器表里被单独标
 | [Install & official patches (English)](tutorial-install-and-official-patches.md) | the same, in English the patches themselves ship as a library: <https://github.com/xiamubumu/dsh-patch-library>  |
 
 ---
+
+## 🔗 同系列
+
+四个插件各自独立、可单装，但配在一起最省。另外三个：
+
+- [`dsh-context-reclaim`](https://github.com/xiamubumu/dsh-context-reclaim) — 上下文回收：工具结果有界化、工具面折叠、前缀稳定化，长会话不越聊越贵
+- [`dsh-aux-degrade`](https://github.com/xiamubumu/dsh-aux-degrade) — 辅助调用降级：压缩摘要 / 会话标题不再被高思考档烧光预算
+- [`dsh-capability-composer`](https://github.com/xiamubumu/dsh-capability-composer) — 能力组合：把常驻工具面收成几个组合，按需切换
+
+> 全部**只支持 DSH 1.5**，DSH 出新版本会跟进更新。需要打官方补丁的插件装好后会自己弹窗说清楚，一条不漏。
 
 ## 安装
 
