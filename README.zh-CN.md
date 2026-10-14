@@ -179,6 +179,13 @@ Chromium 不允许静默旁加载扩展 —— 这是浏览器的安全规则，
 
 Firefox 也在支持列表里，但在插件自己的浏览器表里被单独标记：它**不会被提供给调试浏览器启动器**，因为那个启动器传的是 Chromium 专有的参数。
 
+### 还剩的两件事，一次讲清楚
+
+刚装完之后剩两个决定 —— 官方文件补丁、以及这个扩展 —— 而一个从不点开面板的用户，这两件事都无从知晓。两处补上了，而且都不需要插件侧的歪招：
+
+1. **`dsh-context-reclaim` 会在对话里播报。** 装好之后的头几次请求，那个插件会往系统提示末尾追加一段简短提醒，让你的 agent 用**你自己的语言**讲清楚补丁体检结论与扩展那一步，并带上补丁库链接、直接下载链接和教程路径。开关见它的 README（`DSH_RECLAIM_ANNOUNCE*`）。
+2. **本插件在浏览器分组顶部常驻一行「官方补丁」** —— 它**不**藏在「扩展没装」这个条件里，因为补丁和扩展不该互相遮住。这一行带同样两个链接加一个复制按钮；装了 `dsh-context-reclaim` 时还会通过 `/patch-report` 显示体检结论。按钮走 `/open-link`，所以桌面端和 Web 端都能在你自己的浏览器里打开补丁库。
+
 ### 端口
 
 默认 `43130`；若环境变量 `DSH_LAUNCHER_BRIDGE_PORT` 能解析成 1024–65535 的整数，则用它的值。这个覆盖开关是为了让一台机器上跑两个 DSH 实例时各留一条自己的桥，而不是互相把端口抢走（本仓库自己的端到端测试正是用它做到这一点的）。扩展那半边的端口可以在弹窗里改：改了一边就要改另一边 —— 不一致的唯一后果是「标签页」行报告扩展离线，并退回调试端口那条路。
@@ -222,6 +229,8 @@ Firefox 也在支持列表里，但在插件自己的浏览器表里被单独标
 | `GET` | `/linked-plugins` | 探测伙伴插件。返回 `{ linked: [{ id, label, ok, detail }] }` |
 | `POST` | `/open-debug-browser` | 起一个带调试端口、**并且已挂上暂存扩展**的 Chromium 实例；返回里的 `extensionLoaded` 是**去调试端口核实过的**（不是假设），需要换干净 profile 时另有 `healed` / `note` |
 | `POST` | `/open-extensions-page` | 打开这台机器上第一个 Chromium 的扩展页，用于那一次手工装载。返回 `{ ok, browser, url }` |
+| `POST` | `/open-link` | 在用户自己的浏览器里打开一个**白名单内**的外链。请求体 `{ url }`；凡不是以 `https://github.com/xiamubumu/` 开头的，一律 `{ ok: false, error }` 拒绝。这条路由是为了让「补丁库」按钮在桌面端也能点开 —— 它刻意**不是**通用 URL 打开器 |
+| `GET` | `/patch-report` | 官方补丁体检结论，从 `<DSH_HOME>/context-reclaim/patch-report.json` 读（那是 `dsh-context-reclaim` 写的）。返回 `{ ok, report }`；没装那个插件、或它还没得出结论时 `report` 为 `null`。**只读：本插件绝不写别家插件的文件** |
 | `GET` | `/bundles` | profile 挂载的插件清单 |
 | `GET`\|`HEAD` | `/favicon?u=<编码后>` | 同源 favicon 代理：嗅探字节、缓存 6 小时、响应头带 `default-src 'none'; sandbox` |
 | `GET`\|`HEAD` | `/bridge` | 桥的身份：`{ bridge: true, pid, port, holding, startedAt }` |
@@ -320,10 +329,10 @@ dsh plugin --profile web add github:xiamubumu/dsh-composer-launcher
 
 ### 从本地 tarball（离线机器）
 
-去 [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases) 下载 `dsh-composer-launcher-1.0.0.tgz`，然后：
+去 [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases) 下载 `dsh-composer-launcher-1.0.1.tgz`，然后：
 
 ```bash
-dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.0.tgz
+dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.1.tgz
 ```
 
 ### 从插件市场 / npm（暂时还不行）

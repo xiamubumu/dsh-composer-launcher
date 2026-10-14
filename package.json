@@ -1,6 +1,6 @@
 {
   "name": "dsh-composer-launcher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Codex-style composer launcher: turns the composer's + button into a menu (add / capability / common plugins) whose picks land as native reference chips on a rail above the input. Ships a companion browser extension that pushes your open tabs in as reference sources, plus a staging script that detects whichever browsers are actually installed and walks you through loading it.",
   "license": "MIT",
   "type": "module",
