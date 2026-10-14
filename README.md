@@ -297,6 +297,17 @@ If that service is absent, the MCP row is simply unavailable, and clicking it re
 
 ---
 
+## 9. The browser-extension notice: one dialog, naming the steps
+
+The browser extension belongs to this plugin (the "+" launcher), so this dialog is this plugin's own. It appears once, the first time the interface opens after installation, and spells out:
+
+- **Why it cannot install itself**: Chromium has a hard rule — nothing may silently sideload an extension into the browser you use every day. The plugin has already staged the files, but the one "Load unpacked" click has to be yours.
+- **Three routes**: **A, zero clicks** — press "Open with the extension loaded" and the plugin starts a separate browser instance with the extension attached; **B, into your everyday browser** (one time only) — press "Open the extensions page" → Developer mode → Load unpacked → pick the folder the dialog prints; **C** follow `tutorial-browser-extension.md`.
+- **Detection**: the extension pushes its tab list to the plugin; **a received push means "installed"** and the dialog stops appearing immediately. No push means "not installed". Nothing is guessed.
+- **Always available**: the browser group has a "How to install" button that brings this same guide up on demand, even after the extension is installed.
+
+**This plugin needs no DSH patches at all** — patches are announced by the plugins that need them, the extension by this one, and neither speaks for the other.
+
 ## 📚 Tutorials
 
 | Document | What it covers |
@@ -320,10 +331,10 @@ One command. That is the whole procedure — no script, no path to edit.
 
 ### From a local tarball (air-gapped machines)
 
-Download `dsh-composer-launcher-1.0.0.tgz` from [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases), then:
+Download `dsh-composer-launcher-1.1.0.tgz` from [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases), then:
 
 ```bash
-dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.0.tgz
+dsh plugin --profile web add /path/to/dsh-composer-launcher-1.1.0.tgz
 ```
 
 ### From the plugin marketplace / npm (not yet possible)
@@ -332,7 +343,7 @@ The marketplace submission (an `awesome-dsh-plugin` PR) has not been filed and n
 Once listed/published, searching for **dsh-composer-launcher** in the marketplace and installing is all there is to it.
 
 > ⚠️ **Known issue: do not feed the release asset's tarball URL to `dsh plugin add`.**
-> `dsh plugin --profile web add https://github.com/.../releases/download/v1.0.0/....tgz` fails on the pnpm DSH bundles (10.34.5) with
+> `dsh plugin --profile web add https://github.com/.../releases/download/v1.1.0/....tgz` fails on the pnpm DSH bundles (10.34.5) with
 > `ERR_PNPM_MISSING_TARBALL_INTEGRITY` ([pnpm#14351](https://github.com/pnpm/pnpm/issues/14351), fixed upstream only in pnpm ≥ 12.5.1).
 > Installing a second plugin that way **always** fails — use the `github:` shorthand or a local tarball path instead.
 

@@ -297,6 +297,17 @@ Firefox 也在支持列表里，但在插件自己的浏览器表里被单独标
 
 ---
 
+## 9. 浏览器扩展提醒：装好就弹一次，指到怎么装
+
+浏览器扩展只属于本插件（加号启动器），所以这个弹窗也只由本插件弹。装好插件后第一次打开界面会弹一次，写清楚：
+
+- **为什么不能自动装**：Chromium 有一条硬规则 —— 任何东西都不允许静默把扩展塞进你日常用的浏览器。扩展文件插件已经放到位，但「加载解压缩的扩展」那一下必须你自己点。
+- **三条路**：**A 零人工** —— 点「用带扩展的浏览器打开」，插件另起一个浏览器实例并把扩展挂好；**B 装进日常浏览器**（只需一次）—— 点「打开扩展管理页」→ 开发者模式 → 加载解压缩的扩展 → 选弹窗里印出来的那个目录；**C** 图文步骤见 `tutorial-browser-extension.zh-CN.md`。
+- **检测系统**：扩展会主动把标签页推给插件，**收到过推送即判定「已装」**，弹窗立刻不再出现；没收到就是「没装」。这里不猜。
+- **随时可看**：浏览器分组里有一个「安装说明」按钮，任何时候点它都能把这份步骤调出来（即使已经装好）。
+
+**本插件不需要给 DSH 打任何补丁** —— 补丁归需要补丁的插件去提醒，扩展归这里，两者互不代言。
+
 ## 📚 教程
 
 | 文档 | 讲什么 |
@@ -320,10 +331,10 @@ dsh plugin --profile web add github:xiamubumu/dsh-composer-launcher
 
 ### 从本地 tarball（离线机器）
 
-去 [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases) 下载 `dsh-composer-launcher-1.0.0.tgz`，然后：
+去 [Releases](https://github.com/xiamubumu/dsh-composer-launcher/releases) 下载 `dsh-composer-launcher-1.1.0.tgz`，然后：
 
 ```bash
-dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.0.tgz
+dsh plugin --profile web add /path/to/dsh-composer-launcher-1.1.0.tgz
 ```
 
 ### 从插件市场 / npm（暂时还不行）
@@ -332,7 +343,7 @@ dsh plugin --profile web add /path/to/dsh-composer-launcher-1.0.0.tgz
 收录 / 发布之后，市场里搜 **dsh-composer-launcher** 装上即可。
 
 > ⚠️ **已知问题：不要拿 Release 资产的 tarball URL 直接装。**
-> `dsh plugin --profile web add https://github.com/.../releases/download/v1.0.0/....tgz` 在 DSH 自带的 pnpm 10.34.5 上会失败：
+> `dsh plugin --profile web add https://github.com/.../releases/download/v1.1.0/....tgz` 在 DSH 自带的 pnpm 10.34.5 上会失败：
 > `ERR_PNPM_MISSING_TARBALL_INTEGRITY`（[pnpm#14351](https://github.com/pnpm/pnpm/issues/14351)，上游在 pnpm ≥ 12.5.1 才修好）。
 > 连装第二个插件时**必然**失败 —— 请用上面的 `github:` 简写或本地 tarball 路径。
 
