@@ -4,6 +4,8 @@
 
 > ⚠️ **DSH 1.5 only** (`>=0.1.5-rc.2 <0.2.0`). Newer DSH releases will be supported in follow-up updates.
 
+> 🟢 **Collision risk: very low.** This is a **pure UI plugin with no server-side seam at all** — it never rewrites requests, tool results or the system prompt, so the "functional collision" layer does not apply. All **four** client slots it takes are `list` / `keyed`, never `chain`. See [Compatibility](#compatibility).
+
 **English** · [简体中文](README.zh-CN.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)

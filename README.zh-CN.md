@@ -4,6 +4,8 @@
 
 > ⚠️ **只支持 DSH 1.5**（`>=0.1.5-rc.2 <0.2.0`）。DSH 出新版本会跟进更新。
 
+> 🟢 **冲突概率极低。** 本插件是**纯 UI 插件,不挂任何服务端接缝** —— 不改请求、不改工具结果、不改系统提示,所以「功能打架」这一层对它不存在;它占的 **4 个客户端槽位全是 `list` / `keyed` 型**,不占任何 `chain` 型。详见下方[兼容性](#兼容性)。
+
 [English](README.md) · **简体中文**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
