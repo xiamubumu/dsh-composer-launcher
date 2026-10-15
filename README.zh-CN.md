@@ -401,15 +401,11 @@ pwsh -ExecutionPolicy Bypass -File .\install-extension.ps1
 
 ## 兼容性
 
-### 共存实测:会不会和别的插件打架(2026-10-15 实测)
+### UI 槽位共存：会不会和别的插件抢位置（2026-10-15 实测）
 
-**服务端接缝 —— 不冲突。**
+**本插件不挂任何服务端接缝** —— 它是纯 UI 插件，不改请求、不改工具结果、不改系统提示。所以「和别的插件功能打架」这一层**对它不存在**。
 
-本机 44 个已装插件里,有 **21 个**同样挂载 `llm/stream`、`tools/pre-execute`、`tools/post-execute`、`system-prompt/assemble`、`session/event` 中的至少一个,其中 **20 个是协作式的**(每个 handler 都调用 `next()` 往下传)。本插件与它们**同机共存**,包括像 `dsh-vision-router` 这种挂了 4 个相同接缝的。
-
-原因:DSH 的事件接缝是**中间件瀑布**,只要各方都调 `next()`、只做增量修改,就是**叠加**而不是抢占。
-
-**客户端槽位**:
+它只占 4 个**客户端槽位**，而槽位类型决定了会不会顶掉别人：
 
 | 槽位 | 类型 | 说明 |
 |---|---|---|
@@ -418,47 +414,9 @@ pwsh -ExecutionPolicy Bypass -File .\install-extension.ps1
 | `conversation.input.overlay` | `list` | 可叠加 |
 | `settings.plugin.item` | `keyed` | 按 key 各占一格 |
 
+**只有 `chain` 型槽位会「只渲染第一个」—— 本插件一个都不占。** 实测本机另有 3 个插件占 `conversation.input.dock`、6 个占 `settings.plugin.item`，均正常共存。
 
-> 只有 **`chain` 型**槽位会「只渲染第一个」;`list` 可叠加,`keyed` 按 key 各占一格。**本插件不占任何 `chain` 型槽位。**
-
-**已知会撞的三种情况(如实)**
-
-1. 对方在**同一个服务端接缝**上做**整体重建**(把 system prompt / 工具结果整个重写),而不是增量修改;
-2. 对方占用**同一个 `chain` 型**槽位;
-3. 双方要求打**同一个官方文件**的补丁 —— 这一条会被补丁库的 `apply.mjs --check` **明确报 `conflict`**,不会静默出错。
-
-**已实测共存**:`dsh-context-reclaim` + `billion-context@0.1.175` 同机同 profile 无冲突 —— 前者走 **Cordis 事件总线**,后者走 **agent 引导层**(bootstrap-hook / native loader,自带 6 种 agent 的打包产物),两者**没有共享接缝**。
-
-
-| | |
-|---|---|
-| **DSH** | **只支持 1.5 系列** —— `engines.dsh: ">=0.1.5-rc.2 <0.2.0"` |
-| **桌面版** | ✅ 支持 |
-| **网页版** | ✅ 支持 |
-| **其它 DSH 宿主** | ✅ 只要是 DSH 就支持 —— 这里没有任何一处是桌面版专有的 |
-| **操作系统** | Windows、macOS、Linux |
-| **Node** | 随 DSH 一起提供；这里用到的语法面向 Node 20+，但你从来不用自己装 |
-| **第三方依赖** | 没有 —— peer 依赖全是 DeepSeek Harness 官方包加 React |
-
-上界是**有意**的。插件挂的是客户端插槽和宿主路由，这些契约在 1.5 这条线里还在动，所以它只声明自己真正测过的那条线，不多claim一点。后续版本会放宽。
-
-### 网页版没有原生文件夹对话框 —— 所以本插件补一个
-
-DSH 自己的目录选择流（`@deepseek-ai/dsh-client-ui-directory-picker-native`）只读一个浏览器全局：`window.dshDesktopDirectoryPicker.pick()`。**只有桌面外壳**会注入它；网页版里这个全局不存在，于是那条流直接 reject：
-
-```
-DSH Desktop directory picker bridge is unavailable
-```
-
-DSH 的工作区界面把它显示成「无法打开文件夹」。你自己的文件夹按钮和 DSH 自己的选择器走的是**同一个全局**，所以本插件在**真桥缺席时**才装一个替身：
-
-- 真的桌面外壳 ⇒ 替身**一行都不装**；而且替身的 `pick()` 每次调用都会重新检查，迟到的真桥照样优先；
-- 网页版 ⇒ 替身让你**手填**文件夹的绝对路径（浏览器出于安全限制不给绝对路径 —— `showDirectoryPicker()` 给回的句柄里唯一有用的是最后一段名字 —— 所以手填是**唯一**能把一个真实目录交给服务端的办法）。相对路径会被拒绝；`D:\…`、`\\服务器\共享`、`/…` 都接受。
-
-不想要这个行为就别装本插件：这个替身不存在于任何其它地方。
-
----
-
+> 补丁库里那条 `ui-renderer-turntail` 治的是 `chain` 型槽位的病；本插件不占 chain 型，**用不到它**。
 ## 常见问题
 
 <details>

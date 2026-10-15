@@ -401,15 +401,11 @@ It stages the extension to a stable path, lists the browsers it found on this ma
 
 ## Compatibility
 
-### Coexistence: does it fight other plugins? (measured 2026-10-15)
+### UI slot coexistence: does it take anyone else's seat? (measured 2026-10-15)
 
-**Server-side seams — no conflict.**
+**This plugin hooks no server-side seam at all** — it is a pure UI plugin: it does not rewrite requests, tool results or the system prompt. So the "functional collision" layer **does not apply to it**.
 
-Of the 44 plugins installed on the test machine, **21** also hook at least one of `llm/stream`, `tools/pre-execute`, `tools/post-execute`, `system-prompt/assemble`, `session/event` — and **20 of them are cooperative** (every handler calls `next()` to pass through). This plugin runs alongside all of them, including `dsh-vision-router`, which hooks four of the same seams.
-
-The reason: DSH event seams are a **middleware waterfall**. As long as every party calls `next()` and only makes incremental edits, they **compose** instead of pre-empting each other.
-
-**Client slots**:
+It occupies four **client slots**, and the slot kind decides whether it displaces anyone:
 
 | Slot | Kind | Note |
 |---|---|---|
@@ -418,47 +414,9 @@ The reason: DSH event seams are a **middleware waterfall**. As long as every par
 | `conversation.input.overlay` | `list` | stackable |
 | `settings.plugin.item` | `keyed` | one cell per key |
 
+**Only `chain` slots render just the first entry — this plugin occupies none of them.** On the test machine three other plugins also take `conversation.input.dock` and six take `settings.plugin.item`; all coexist normally.
 
-> Only **`chain`** slots render just the first entry; `list` slots stack, and `keyed` slots give each key its own cell. **This plugin occupies no `chain` slot.**
-
-**The three cases that do collide (honestly stated)**
-
-1. The other plugin **rebuilds** the same seam wholesale (rewrites the whole system prompt / tool result) instead of editing incrementally;
-2. The other plugin takes the **same `chain`** slot;
-3. Both need a patch to the **same official file** — this one is reported as an explicit `conflict` by the patch library `apply.mjs --check`, never as a silent failure.
-
-**Measured coexistence**: `dsh-context-reclaim` + `billion-context@0.1.175` share one profile with no conflict — the former rides the **Cordis event bus**, the latter rides an **agent bootstrap layer** (bootstrap-hook / native loader, shipping bundled payloads for six different agents). They share no seam.
-
-
-| | |
-|---|---|
-| **DSH** | **1.5 series only** — `engines.dsh: ">=0.1.5-rc.2 <0.2.0"` |
-| **Desktop app** | ✅ supported |
-| **Web UI** | ✅ supported |
-| **Other DSH hosts** | ✅ if it is DSH, it is supported — nothing here is desktop-specific |
-| **Operating system** | Windows, macOS, Linux |
-| **Node** | ships with DSH; the syntax used here targets Node 20+ but you never install it yourself |
-| **Third-party dependencies** | none — peer dependencies are DeepSeek Harness packages plus React |
-
-The upper bound is deliberate. The plugin hooks client slots and host routes whose contracts are still moving inside the 1.5 line, so it declares the line it has actually been tested against and nothing beyond it. A later release will widen it.
-
-### Web builds have no native folder dialog — so this plugin supplies one
-
-DSH's own directory flow (`@deepseek-ai/dsh-client-ui-directory-picker-native`) reads exactly one browser global, `window.dshDesktopDirectoryPicker.pick()`. Only the **desktop shell** injects it; on a web build the global is absent, the flow rejects with
-
-```
-DSH Desktop directory picker bridge is unavailable
-```
-
-and DSH's workspace UI shows 「无法打开文件夹」. Both your own folder button and DSH's own picker reach that same global, so the launcher installs a stand-in **only when the real bridge is missing**:
-
-- a real desktop shell ⇒ the stand-in is never installed at all, and `pick()` re-checks on every call, so a bridge arriving late still wins;
-- a web build ⇒ the stand-in asks you to **type** the folder's absolute path (browsers deliberately hide absolute paths — `showDirectoryPicker()` returns a handle whose only useful field is the last name segment — so typing is the one way left to hand the server a real directory). Relative paths are rejected; `D:\…`, `\\server\share` and `/…` are accepted.
-
-If you would rather not have that at all, uninstall this plugin: the stand-in exists nowhere else.
-
----
-
+> The patch library entry `ui-renderer-turntail` fixes a `chain`-slot problem. This plugin takes no `chain` slot, so it **does not need that patch**.
 ## FAQ
 
 <details>
